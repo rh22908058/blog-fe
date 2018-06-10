@@ -15,7 +15,7 @@
         },
         created(){
             //发送登出的delete请求
-            axios.delete('http://39.105.136.160:3000/api/session')
+            axios.delete('http://localhost:3000/api/session')
             //设置5s定时器，跳转到根目录
             this.timer=setInterval(()=>{
                 if(this.remainTime>0){

@@ -30,7 +30,7 @@ import {formatDate} from '../commons/js/date'
         created(){
             //向后端3000端口请求指定一条article数据
             //vue-router组件的$route指令获取url相关对象，$route.params可以获取动态参数
-            axios.get(`http://39.105.136.160:3000/api/article/${this.$route.params.id}`).then(res=>{
+            axios.get(`http://localhost:3000/api/article/${this.$route.params.id}`).then(res=>{
                 if(!res.err){
                     //axios对数据又做了一层封装，需要res.data.data
                     this.article=res.data.data

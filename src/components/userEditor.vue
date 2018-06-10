@@ -30,7 +30,7 @@
         },
         methods:{
             userCommit(){
-                axios.post("http://39.105.136.160:3000/api/user/admin",this.user).then(res=>{
+                axios.post("http://localhost:3000/api/user/admin",this.user).then(res=>{
                     if(!res.data.err){
                         this.$emit('dataadd',res.data.data)
                         alert('提交成功')

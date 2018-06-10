@@ -146,7 +146,7 @@ import articleEditor from './articleEditor'
             getData(){
                 //向后端3000端口请求以offset和pageSize为参数的数据
                 //其中包含排序参数sort，其值是一个JSON，从sortBy属性中获取
-                axios.get(`http://39.105.136.160:3000/api/article?offset=${(this.page-1)*this.pagination.pageSize}&pageSize=${this.pagination.pageSize}`+
+                axios.get(`http://localhost:3000/api/article?offset=${(this.page-1)*this.pagination.pageSize}&pageSize=${this.pagination.pageSize}`+
                 `&sort=${JSON.stringify([this.sortBy.name,this.sortBy.type])}`).then(res=>{
                     if(!res.err){
                         //axios对数据又做了一层封装，需要res.data.data
@@ -209,7 +209,7 @@ import articleEditor from './articleEditor'
             delArticle(type){
                 //点击了确认删除按钮，发送delete请求，其中currentId指定了待删除记录的id
                 if(type=='ok'){
-                    axios.delete(`http://39.105.136.160:3000/api/article/${this.currentId}`).then((res)=>{
+                    axios.delete(`http://localhost:3000/api/article/${this.currentId}`).then((res)=>{
                         if(res.data.err){
                             alert('删除失败')
                         }else{
@@ -245,7 +245,7 @@ import articleEditor from './articleEditor'
             },
             removeSelect(){
                 let arr=[]
-                arr=this.selectArticles.map(i=>axios.delete(`http://39.105.136.160:3000/api/article/${i.id}`))         
+                arr=this.selectArticles.map(i=>axios.delete(`http://localhost:3000/api/article/${i.id}`))         
                 Promise.all(arr).then((resArr)=>{
                     for(let i=0;i<resArr.length;i++){
                         if(resArr[i].data.err!=0){

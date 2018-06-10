@@ -20,6 +20,7 @@ import lateart from '../components/lateart'
 import file from '../components/file'
 import tag from '../components/tag'
 import axios from 'axios'
+import {debounce} from '../commons/js/date'
 
 export default {
   data () {
@@ -75,7 +76,8 @@ export default {
     loadMore() {
       console.log('loadmore')
       if(!this.isLoadMore){
-        this.sendGetReq()
+        debounce(this.sendGetReq,100)()
+        //this.sendGetReq()
         this.isLoadMore=false
       }
       this.isLoadMore=false
@@ -90,7 +92,7 @@ export default {
       else{
         resource=this.resource
       }
-      axios.get(`http://39.105.136.160:3000/api/${resource}?pageSize=${this.pageSize}&offset=${this.articles.length}&filter=${JSON.stringify(this.filter)}`).then(({data:res})=>{
+      axios.get(`http://localhost:3000/api/${resource}?pageSize=${this.pageSize}&offset=${this.articles.length}&filter=${JSON.stringify(this.filter)}`).then(({data:res})=>{
         if(!res.err){
           //用解构语法追加，不可以直接赋值(之前的数据都会丢失)
           this.articles=[...this.articles,...res.data]

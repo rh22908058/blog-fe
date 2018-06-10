@@ -3,7 +3,7 @@
         <h3 class="title">文章归档</h3>
         <ul class="item-wrapper">
             <!--HTML标签中部可以直接使用模板字符串，要用"包裹-->
-          <li class="item" v-for="item in archives"><a :href="`http://39.105.136.160:8090/#/archive/${item.year}/${item.month}`">{{item.year}}年{{item.month}}月({{item.articleNum}})</a></li>
+          <li class="item" v-for="item in archives"><a :href="`http://localhost:8090/#/archive/${item.year}/${item.month}`">{{item.year}}年{{item.month}}月({{item.articleNum}})</a></li>
         </ul>
     </div>
 </template>
@@ -17,7 +17,7 @@
         },
         async created(){
             /*created中含有异步GET请求，可以用async/await取代Promise，await的结果就是请求成功过的返回数据，可以直接赋值*/
-            let {data:archiveRes}=await axios.get('http://39.105.136.160:3000/api/archive')
+            let {data:archiveRes}=await axios.get('http://localhost:3000/api/archive')
             this.archives=archiveRes.data
         }
     }

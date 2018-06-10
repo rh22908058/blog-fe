@@ -4,7 +4,7 @@
         <ul class="content">
             <li class="label" v-for="item in tags">
                 <!--遍历tags，对每个tag设置/tag/:id的路由，这个路由的组件同样是首页mainContent-->
-                <a :href="`http://39.105.136.160:8090/#/tag/${item.id}`">{{item.name}}</a>
+                <a :href="`http://localhost:8090/#/tag/${item.id}`">{{item.name}}</a>
             </li>
         </ul>
     </div>
@@ -18,7 +18,10 @@
             }
         },
         async created(){
-            let {data}=await axios.get('http://39.105.136.160:3000/api/tag')
+            let {data}=await axios.get('http://localhost:3000/api/tag')
+            if(data){
+                console.log('tag loaded')
+            }
             this.tags=data.data
         }
     }

@@ -32,3 +32,15 @@ function padLeftZero(str) {
     /*前面加'00'再依据字符串长度截取即可*/
     return ('00' + str).substr(str.length)
 }
+
+export function debounce(func, delay) {
+  let timer
+  return function (...args) {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      func.apply(this, args)
+    }, delay)
+  }
+}

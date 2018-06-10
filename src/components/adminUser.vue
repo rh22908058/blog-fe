@@ -95,7 +95,7 @@ import userEditor from './userEditor'
         },
         methods: {
             getData(){
-                axios.get("http://39.105.136.160:3000/api/user").then(res=>{
+                axios.get("http://localhost:3000/api/user").then(res=>{
                     if(!res.err){
                         //axios对数据又做了一层封装，需要res.data.data
                         this.users=res.data.data  
@@ -127,7 +127,7 @@ import userEditor from './userEditor'
             delUser(type){
                 //点击了确认删除按钮，发送delete请求，其中currentId指定了待删除记录的id
                 if(type=='ok'){
-                    axios.delete(`http://39.105.136.160:3000/api/user/${this.currentId}`).then((res)=>{
+                    axios.delete(`http://localhost:3000/api/user/${this.currentId}`).then((res)=>{
                         if(res.data.err){
                             alert('删除失败,无法删除已登录用户')
                         }else{

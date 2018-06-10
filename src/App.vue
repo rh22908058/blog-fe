@@ -91,7 +91,7 @@ export default {
   },
   async created(){
     //页面创建或者页面刷新时都需要重新发送GET请求
-    let {data:res}=await axios.get('http://39.105.136.160:3000/api/session')
+    let {data:res}=await axios.get('http://localhost:3000/api/session')
     if(!res.data){
       this.isSignin=false
     }else{
@@ -136,7 +136,7 @@ export default {
       this.$refs[ref].close()
     },
     async signupCommit(){
-      let{data:res}=await axios.post('http://39.105.136.160:3000/api/user',this.user)
+      let{data:res}=await axios.post('http://localhost:3000/api/user',this.user)
       if(res.err){
         alert('注册出错:'+res.info)
       }else{
@@ -145,7 +145,7 @@ export default {
       }
     },
     async signinCommit(){
-      let{data:res}=await axios.post('http://39.105.136.160:3000/api/session',this.user)
+      let{data:res}=await axios.post('http://localhost:3000/api/session',this.user)
       if(res.err){
         alert('登录出错:'+res.info)
       }else{
