@@ -1,19 +1,21 @@
 
 <template>
     <div class="artical">
-        <h3 class="title">{{article.title}}</h3> 
-        <div class="info">
+        <h3 class="title" v-if="article.title">{{article.title}}</h3> 
+        <div class="info" v-if="article.clickTimes">
             <span class="info-item">{{tagStr}}◈</span>
             <span class="info-item">{{article.createdAt|formatDate}}◈</span>
             <span class="info-item">浏览</span>
             <span class="info-item">{{article.clickTimes}}次</span>
         </div>
-        <p class="detailcontent" v-html="article.content"></p>
+        <p class="detailcontent" v-html="article.content" v-if="article.content"></p>
+        <loading v-if="!article.content"></loading>
     </div>
 </template>
 <script type="text/ecmascript-6">
 import axios from 'axios'
 import {formatDate} from '../commons/js/date'
+import Loading from '../components/load'
     export default{
         data(){
             return {
@@ -46,6 +48,9 @@ import {formatDate} from '../commons/js/date'
                 /*为了便于其他组件使用，将时间格式化方法formatDate在common/js中定义,通用方法抽象成模块*/
                 return formatDate(date,'yyyy-MM-dd hh:mm')
             }
+        },
+        components:{
+            Loading
         }
     }
 </script>

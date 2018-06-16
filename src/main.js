@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router/index'
 import VueRouter from 'vue-router'
+import './assets/icon.css'
 import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.css'
 //全局注册下拉加载插件

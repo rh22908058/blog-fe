@@ -5,12 +5,45 @@ import mainContent from '@/components/mainContent'
 import detailArtical from '@/components/detailArtical'
 import about from '@/components/about'
 */
+/*
 import mainContent from '../pages/mainContent'
 import detailArtical from '../pages/detailArtical'
 import articleEditor from '../components/articleEditor'
 import about from '../pages/about'
 import admin from '../pages/admin'
 import signOut from '../pages/signOut'
+*/
+const mainContent = (resolve) => {
+  import('../pages/mainContent').then((module) => {
+    resolve(module)
+  })
+}
+const detailArtical = (resolve) => {
+  import('../pages/detailArtical').then((module) => {
+    resolve(module)
+  })
+}
+const articleEditor = (resolve) => {
+  import('../components/articleEditor').then((module) => {
+    resolve(module)
+  })
+}
+const signOut = (resolve) => {
+  import('../pages/signOut').then((module) => {
+    resolve(module)
+  })
+}
+const about = (resolve) => {
+  import('../pages/about').then((module) => {
+    resolve(module)
+  })
+}
+const admin = (resolve) => {
+  import('../pages/admin').then((module) => {
+    resolve(module)
+  })
+}
+
 
 Vue.use(Router)
 

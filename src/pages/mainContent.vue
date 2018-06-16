@@ -10,6 +10,7 @@
       <div v-for="item in articles">
         <artical :article="item" class="article"></artical>
       </div>
+      <loading v-if="!isEnd"></loading>
     </div>
   </div>
 </template>
@@ -21,6 +22,7 @@ import file from '../components/file'
 import tag from '../components/tag'
 import axios from 'axios'
 import {debounce} from '../commons/js/date'
+import Loading from '../components/load'
 
 export default {
   data () {
@@ -33,14 +35,22 @@ export default {
       resource:'article',
       //路由参数中的id号
       queryId:null,
-      isLoadMore:false
+      //路由更改时，会自动触发loadMore，造成重复发送get请求
+      //设置标志禁止在loadMore中再次调用sendGetReq发送get请求
+      isLoadMore:false,
+      //只有当一次get请求获得相应数据后才可以在loadMore回调中再次发送get请求获取下一页数据
+      //当网速较慢时，一页数据没有加载完毕时禁止在loadMore回调中再次发送get请求
+      canLoadMore:true,
+      //文章是否加载完毕，如果加载完毕则隐藏loading
+      isEnd:false
     }
   },
   components:{
     artical,
     lateart,
     file,
-    tag
+    tag,
+    Loading
   },
   async created(){
     /*
@@ -75,8 +85,9 @@ export default {
     //加载更多，给GET请求加入pageSize，offset，filter的参数，其中filter需要将filter对象转换为JSON字符串
     loadMore() {
       console.log('loadmore')
-      if(!this.isLoadMore){
-        debounce(this.sendGetReq,100)()
+      //只有当不是路由改变触发的loadMore事件且只有当上一次get请求获取到响应数据时，才发送请求获取下一页数据
+      if(!this.isLoadMore&&this.canLoadMore){
+        debounce(this.sendGetReq,1000)()
         //this.sendGetReq()
         this.isLoadMore=false
       }
@@ -84,6 +95,8 @@ export default {
     },
     //封装GET请求
     sendGetReq(){
+      this.isEnd=false
+      this.canLoadMore=false
       //按路由名分类，对tag路由进行/tag/:id请求，对其他路由不带参数直接请求，如/article,/archive
       let resource
       if(this.resource=="tag"){
@@ -96,6 +109,12 @@ export default {
         if(!res.err){
           //用解构语法追加，不可以直接赋值(之前的数据都会丢失)
           this.articles=[...this.articles,...res.data]
+          this.canLoadMore=true
+          //count<pageSize说明已经到了最后一条记录，隐藏loading
+          console.log(res.pagination.count+' '+res.pagination.pageSize)
+          if(res.pagination.count<res.pagination.pageSize){
+            this.isEnd=true
+          }
         }else{
           console.log(res.err)
         }
