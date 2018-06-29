@@ -48,10 +48,16 @@ const admin = (resolve) => {
 Vue.use(Router)
 
 let router=new Router({
+    //add
+    mode:'history',
     routes: [{
         path: '/',
         component: mainContent,
-        name:'Home'
+        name:'Home',
+        meta: {
+            title: 'home',
+            keepAlive: true
+        }
     }, {
         path: '/detail/:id',
         component: detailArtical,
@@ -91,7 +97,19 @@ let router=new Router({
         component: signOut,
         name:'signOut'
     }],
-    linkActiveClass: 'active'
+    linkActiveClass: 'active',
+    //add
+    scrollBehavior (to, from, savedPosition) {
+        var pos=window.scrollY
+        console.log(pos+'window')
+        if (savedPosition) {
+            return savedPosition
+        } else {
+            from.meta.savedPosition = document.documentElement.scrollTop
+            console.log(from.meta.savedPosition+'scrollfrom')
+            return { x: 0, y: to.meta.savedPosition || 0 }
+        }
+    }
 })
 /*全局路由钩子，当用户登录后(localstorage中保存登录信息)，才可以访问admin路由，否则禁止访问*/
 /*这里的访问是指手动输入admin的URL*/

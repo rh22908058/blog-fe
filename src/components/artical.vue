@@ -16,7 +16,7 @@
         <div class="content" v-html="subContent"></div>
         <!--子组件里的路由跳转也都使用router-link-->
         <!--router-link用模板字符串指定to，要绑定to并且值用引号包裹反引号-->
-        <div><router-link class="todetail" :to="`/detail/${article.id}`"> | 查看文章 | </router-link></div>
+        <div @click="selectItem"><router-link class="todetail" :to="`/detail/${article.id}`"> | 查看文章 | </router-link></div>
     </div>
 </template>
 <script type="text/ecmascript-6">
@@ -54,6 +54,10 @@ import axios from 'axios'
                 })
             }
             */
+            selectItem(){
+                console.log(document.documentElement.scrollTop)
+                sessionStorage.setItem("scrollTop",document.documentElement.scrollTop)
+            }
         },
         /*添加时间过滤器*/
         filters:{

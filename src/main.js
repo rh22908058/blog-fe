@@ -7,6 +7,7 @@ import VueRouter from 'vue-router'
 import './assets/icon.css'
 import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.css'
+import "./commons/stylus/icon.styl"
 //全局注册下拉加载插件
 import infiniteScroll from 'vue-infinite-scroll'
 

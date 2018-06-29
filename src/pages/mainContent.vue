@@ -1,15 +1,18 @@
 <template>
   <div class="main-content">
+    <div class="scroll-top" @click="scrollToTop">
+      <i class="icon-circle-up"></i>
+    </div>
     <div class="right-wrapper">
         <lateart></lateart>
-        <file></file>
-        <tag></tag>
+        <file :hidden="fileH" @fileSelect="hiddenT"></file>
+        <tag :hidden="tagH" @tagSelect="hiddenF" @home="goHome"></tag>
     </div>
     <!--在滚动区域的容器中使用infinte-scroll下拉加载组件的指令-->
-    <div class="content-wrapper" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
+    <div class="content-wrapper" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">   
       <div v-for="item in articles">
         <artical :article="item" class="article"></artical>
-      </div>
+      </div>     
       <loading v-if="!isEnd"></loading>
     </div>
   </div>
@@ -25,6 +28,8 @@ import {debounce} from '../commons/js/date'
 import Loading from '../components/load'
 
 export default {
+  //add
+  name:'main',
   data () {
     return {
       articles:[],
@@ -42,7 +47,11 @@ export default {
       //当网速较慢时，一页数据没有加载完毕时禁止在loadMore回调中再次发送get请求
       canLoadMore:true,
       //文章是否加载完毕，如果加载完毕则隐藏loading
-      isEnd:false
+      isEnd:false,
+      date:{},
+      tagid:'',
+      tagH:true,
+      fileH:true
     }
   },
   components:{
@@ -64,14 +73,34 @@ export default {
       }
     })
     */
+    //初始化滚动高度
+    sessionStorage.setItem("scrollTop",0)
     console.log('maincreated')
     this.changeFilter()
-    //this.loadMore()
   },
   activated(){
     console.log('mainactivated')
+    var scrollTop=sessionStorage.getItem("scrollTop")
+    setTimeout(()=>{
+      window.scrollTo(0, scrollTop)
+    },1000)
   },
   methods:{
+    hiddenT(){
+      this.tagH=false
+      this.fileH=true
+    },
+    hiddenF(){
+      this.fileH=false
+      this.tagH=true
+    },
+    scrollToTop(){
+      window.scrollTo(0, 0)
+      sessionStorage.setItem("scrollTop",0)
+    },
+    goHome(){
+      this.changeFilter()
+    },
     //从articles数组中删除指定id的数据
     /*
     deleteArticle(id){
@@ -85,6 +114,9 @@ export default {
     //加载更多，给GET请求加入pageSize，offset，filter的参数，其中filter需要将filter对象转换为JSON字符串
     loadMore() {
       console.log('loadmore')
+      if(this.$route.name!='Home'){
+        return
+      }
       //只有当不是路由改变触发的loadMore事件且只有当上一次get请求获取到响应数据时，才发送请求获取下一页数据
       if(!this.isLoadMore&&this.canLoadMore){
         debounce(this.sendGetReq,1000)()
@@ -95,7 +127,6 @@ export default {
     },
     //封装GET请求
     sendGetReq(){
-      this.isEnd=false
       this.canLoadMore=false
       //按路由名分类，对tag路由进行/tag/:id请求，对其他路由不带参数直接请求，如/article,/archive
       let resource
@@ -105,32 +136,47 @@ export default {
       else{
         resource=this.resource
       }
-      axios.get(`http://localhost:3000/api/${resource}?pageSize=${this.pageSize}&offset=${this.articles.length}&filter=${JSON.stringify(this.filter)}`).then(({data:res})=>{
-        if(!res.err){
-          //用解构语法追加，不可以直接赋值(之前的数据都会丢失)
-          this.articles=[...this.articles,...res.data]
-          this.canLoadMore=true
-          //count<pageSize说明已经到了最后一条记录，隐藏loading
-          console.log(res.pagination.count+' '+res.pagination.pageSize)
-          if(res.pagination.count<res.pagination.pageSize){
-            this.isEnd=true
+      console.log('resource'+this.resource)
+      if(!this.isEnd){
+        axios.get(`http://localhost:3000/api/${resource}?pageSize=${this.pageSize}&offset=${this.articles.length}&filter=${JSON.stringify(this.filter)}`).then(({data:res})=>{
+          if(!res.err){
+            //用解构语法追加，不可以直接赋值(之前的数据都会丢失)
+            this.articles=[...this.articles,...res.data]
+            this.canLoadMore=true
+            //count<pageSize说明已经到了最后一条记录，隐藏loading
+            console.log(res.pagination.count+' '+res.pagination.pageSize)
+            if(res.pagination.count<res.pagination.pageSize){
+              this.isEnd=true
+            }
+          }else{
+            console.log(res.err)
           }
-        }else{
-          console.log(res.err)
-        }
-      })
+        })
+      }
     },
     //筛选条件改变时，封装filter对象，清空articles，重新发送GET请求获取条件筛选后的数据
     changeFilter(){
+      this.isEnd=false
+      console.log(this.$route.hash)
       //new Router创建路由时加入了name属性可以用$route.name取到，path中的参数可以由$route.params取到
-      const {year,month}=this.$route.params  
+      //const {year,month}=this.$route.params  
       //如果是Archive路由，则按时间范围进行筛选，修改data中的filter属性，从而在GET请求中加入filter参数进行筛选
-      if(this.$route.name==='Archive'){
+      if(/archive/.test(this.$route.hash)){
+        console.log('articlechange')
         this.resource="article"
+
+        const result=this.$route.hash.match(/\d+/g)
+        //如果archive请求与上次archive请求url相同，则说明是返回，使用缓存不必重新请求
+        if((+result[0]==this.date.year)&&(+result[1]==this.date.month)){
+          return
+        }
+        //是新的archive请求，更新date属性并发送请求
+        this.date.year=+result[0]
+        this.date.month=+result[1]
         this.filter={
           createdAt:{
-            '$lt':`${year}-${+month+1}-1`,
-            '$gte':`${year}-${month}-1`
+            '$lt':`${this.date.year}-${this.date.month+1}-1`,
+            '$gte':`${this.date.year}-${this.date.month}-1`
           }
         }
         //对于不同的路由，需要清空articles再进行请求，确保各个参数都是初始状态。
@@ -138,13 +184,19 @@ export default {
         this.sendGetReq()
         this.isLoadMore=true
       }
-      else if(this.$route.name==='Tag'){
+      else if(/tag/.test(this.$route.hash)){
+        console.log('tagchange')
         this.resource="tag"
-        const {id}=this.$route.params
-        this.queryId=id
+        //如果tag请求与上次tag请求url相同，则说明是返回，使用缓存不必重新请求
+        const result=this.$route.hash.match(/\d+/g)
+        if(result[0]==this.tagid){
+          return
+        }
+        //是tag请求，更新当前的tagid并发送请求
+        this.tagid=result[0]
+        this.queryId=this.tagid
         //对于不同的路由，需要清空articles再进行请求，确保各个参数都是初始状态。
         this.articles=[]
-        console.log('gotoTag')
         this.sendGetReq()
         this.isLoadMore=true
       }
@@ -161,8 +213,14 @@ export default {
   watch:{
     /*监听url的改变，$route是vue-router的指令，表示当前url*/
     '$route':function(newVal){
+      console.log('changefilter')
+      console.log(newVal)
+      //如果还是Home路由则不发送请求，Home路由hash为空
+      if(this.$route.hash){
+        this.changeFilter()
+      }
       //路由改变，重新筛选数据
-      this.changeFilter()
+      //this.changeFilter()
     }
   }
 }
@@ -176,6 +234,14 @@ export default {
     flex-direction row-reverse
     @media screen and (max-width:960px)
         display block
+    .scroll-top
+      position fixed
+      bottom 20px
+      right 20px
+      border-radius 50%
+      width 30px
+      height 30px
+      font-size 30px
     .content-wrapper
       width 75%
       margin 0

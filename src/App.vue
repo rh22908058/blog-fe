@@ -2,9 +2,8 @@
   <div id="app">
     <div class="nav">
       <div class="left-wrapper">
-        <img class='pic' src="./assets/logo.png" width='60' height='60'>
         <div class="title">
-          TT的技术博客
+          九部软件组
         </div>
       </div>
       <div class="right-wrapper" @click.stop.prevent="changeClass($event)" ref="items">
@@ -15,11 +14,14 @@
         <div class="nav-item" v-show="!isSignin" @click="signup" id="signup"><a href="#">注册</a></div>
         <div class="nav-item" v-show="isSignin"><router-link to="/admin">管理</router-link></div>
         <div class="nav-item" v-show="isSignin"><router-link to="/sign-out">注销</router-link></div>
-        <div class="nav-item"><router-link to='/about'>关于</router-link></div>
       </div>
       <div class="welcome" v-show="isSignin">欢迎{{user.username}}</div>
     </div>
-    <router-view></router-view>
+    <keep-alive>
+        <router-view v-if="$route.meta.keepAlive"></router-view>
+    </keep-alive>
+    <!-- 这里不会被keepalive -->
+    <router-view v-if="!$route.meta.keepAlive"></router-view>
 
     <!--登录弹出对话框-->
     <md-dialog md-open-from="#signin" md-close-to="#signin" ref="signinDialog">
@@ -121,14 +123,12 @@ export default {
       let el=event.target
       let children=this.$refs.items.children
       let index=0
-      console.log(children)
       for(let i=0;i<children.length;i++){
         removeClass(children[i],'current')
         if(el===children[i].children[0]){
           index=i
         }
       }
-      console.log(el)
       addClass(children[index],'current')
     },
     //关闭相应对话框
@@ -172,8 +172,6 @@ export default {
 }
 </script>
 <style lang="stylus" rel="stylesheet/stylus" scoped>
-body
-  background #d8e2eb
   #app
     box-sizing border-box
     padding 0 50px
@@ -197,6 +195,7 @@ body
           color #fff
           text-shadow 1px 3px 6px #113f6e
           line-height 1.2
+          padding-left 30px
           @media screen and (max-width:600px)
             font-size 30px
         .pic
