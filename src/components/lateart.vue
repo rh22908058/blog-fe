@@ -8,6 +8,7 @@
 </template>
 <script type="text/ecmascript-6">
     import axios from 'axios'
+    import {port} from '../commons/js/port'
     export default{
         data(){
             return {
@@ -15,7 +16,7 @@
             }
         },
         async created(){
-            let {data:res}=await axios.get('http://localhost:3000/api/article?pageSize=3&sort=["id","desc"]')
+            let {data:res}=await axios.get(`http://${port}:3000/api/article?pageSize=3&sort=["id","desc"]`)
             this.lastArt=res.data
         }
     }

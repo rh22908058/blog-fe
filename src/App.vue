@@ -78,6 +78,7 @@
 <script>
 import axios from 'axios'
 import {hasClass,addClass,removeClass} from './commons/js/dom'
+import {port} from './commons/js/port'
 export default {
   data(){
     return {
@@ -92,8 +93,9 @@ export default {
     }
   },
   async created(){
+    this.bodyEl=document.documentElement||document.body
     //页面创建或者页面刷新时都需要重新发送GET请求
-    let {data:res}=await axios.get('http://localhost:3000/api/session')
+    let {data:res}=await axios.get(`http://${port}:3000/api/session`)
     if(!res.data){
       this.isSignin=false
     }else{
@@ -111,6 +113,7 @@ export default {
       this.user.passwordRpt=''
       this.user.email=''
       this.$refs["signupDialog"].open()
+      this.bodyEl.style.overflowY='hidden'
     },
     signin(){
       this.user.username=''
@@ -118,6 +121,7 @@ export default {
       this.user.passwordRpt=''
       this.user.email=''
       this.$refs["signinDialog"].open()
+      this.bodyEl.style.overflowY='hidden'
     },
     changeClass(event){
       let el=event.target
@@ -134,18 +138,20 @@ export default {
     //关闭相应对话框
     closeDialog(ref){
       this.$refs[ref].close()
+      this.bodyEl.style.overflowY='auto'
     },
     async signupCommit(){
-      let{data:res}=await axios.post('http://localhost:3000/api/user',this.user)
+      let{data:res}=await axios.post(`http://${port}:3000/api/user`,this.user)
       if(res.err){
         alert('注册出错:'+res.info)
       }else{
         this.$refs["signupDialog"].close()
         alert('注册成功')
       }
+      this.bodyEl.style.overflowY='auto'
     },
     async signinCommit(){
-      let{data:res}=await axios.post('http://localhost:3000/api/session',this.user)
+      let{data:res}=await axios.post(`http://${port}:3000/api/session`,this.user)
       if(res.err){
         alert('登录出错:'+res.info)
       }else{
@@ -155,6 +161,7 @@ export default {
         //将userId添加进localStorage
         window.localStorage.setItem('userId',res.data.id)
       }
+      this.bodyEl.style.overflowY='auto'
     }
   },
   //监听路由，只要路由切换到登出路由，就将登录状态置为false
@@ -185,6 +192,7 @@ export default {
       width 100%
       height 300px
       position relative
+      z-index 50
       @media screen and (max-width:600px)
             height 200px
       .left-wrapper

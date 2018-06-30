@@ -1,5 +1,6 @@
 
 <template>
+    <div>
     <div class="artical">
         <div class="back" @click="back">
             <i class="icon-circle-left"></i>
@@ -14,11 +15,14 @@
         <p class="detailcontent" v-html="article.content" v-if="article.content"></p>
         <loading v-if="!article.content"></loading>
     </div>
+    <div class="overflow"></div>
+    </div>
 </template>
 <script type="text/ecmascript-6">
 import axios from 'axios'
 import {formatDate} from '../commons/js/date'
 import Loading from '../components/load'
+import {port} from '../commons/js/port'
     export default{
         name:'detail',
         data(){
@@ -37,13 +41,14 @@ import Loading from '../components/load'
         methods:{
             back(){
                 history.back()
+                //this.$router.back(-1)
             }
         },
         created(){
             console.log(this.$route)
             //向后端3000端口请求指定一条article数据
             //vue-router组件的$route指令获取url相关对象，$route.params可以获取动态参数
-            axios.get(`http://localhost:3000/api/article/${this.$route.params.id}`).then(res=>{
+            axios.get(`http://${port}:3000/api/article/${this.$route.params.id}`).then(res=>{
                 if(!res.err){
                     //axios对数据又做了一层封装，需要res.data.data
                     this.article=res.data.data
@@ -71,17 +76,29 @@ import Loading from '../components/load'
     }
 </script>
 <style lang="stylus" rel="stylesheet/stylus" scoped>
+    .overflow
+        position fixed
+        top 210px
+        bottom 0
+        left 0
+        right 0
+        background #d8e2eb
+        z-index 10
     .artical
         margin 10px 0 20px 0
         background #fff
         border-radius 4px
         box-shadow 1px 2px 3px #adc2d7
         border 1px solid #adc2d7
+        z-index 100
+        position relative
         .back
             position absolute
-            top 230px
+            top 15px
             left 15px
             font-size 30px
+            border-radius 50%
+            background red
         .title
             font-size 20px
             text-align center
@@ -95,4 +112,5 @@ import Loading from '../components/load'
             line-height 1.77
             color #333
             padding 10px
+            overflow hidden
 </style>

@@ -22,6 +22,7 @@
 </template>
 <script type="text/ecmascript-6">
     import axios from 'axios'
+    import {port} from '../commons/js/port'
     export default{
         data(){
             return {
@@ -30,7 +31,7 @@
         },
         methods:{
             userCommit(){
-                axios.post("http://localhost:3000/api/user/admin",this.user).then(res=>{
+                axios.post(`http://${port}:3000/api/user/admin`,this.user).then(res=>{
                     if(!res.data.err){
                         this.$emit('dataadd',res.data.data)
                         alert('提交成功')

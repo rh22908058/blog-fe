@@ -3,11 +3,11 @@
         <h3 class="title">标签</h3>
         <ul class="content"  @click.stop="changeClass($event)" ref="items">
             <li class="label" @click="goHome">
-                <a href="http://localhost:8090/#/">全部</a>
+                <router-link to='/'>全部</router-link>
             </li>
             <li class="label" v-for="item in tags">
                 <!--遍历tags，对每个tag设置/tag/:id的路由，这个路由的组件同样是首页mainContent-->
-                <a :href="`http://localhost:8090/#/tag/${item.id}`">{{item.name}}</a>
+                <a :href="`http://${port}:8090/#/tag/${item.id}`">{{item.name}}</a>
             </li>
         </ul>
     </div>
@@ -15,6 +15,7 @@
 <script type="text/ecmascript-6">
     import axios from 'axios'
     import {hasClass,addClass,removeClass} from '../commons/js/dom'
+    import {port} from '../commons/js/port'
     export default{
         data(){
             return {
@@ -23,15 +24,17 @@
         },
         props:{
             hidden:{
-                type:Boolean
+                type:Boolean,
+                default:true
             }
         },
         async created(){
-            let {data}=await axios.get('http://localhost:3000/api/tag')
+            let {data}=await axios.get(`http://${port}:3000/api/tag`)
             if(data){
                 console.log('tag loaded')
             }
             this.tags=data.data
+            this.port=port
         },
         methods:{
             changeClass(event){
@@ -52,7 +55,7 @@
             }
         },
         watch:{
-            'hidden':function(val){
+            hidden(val){
                 if(!val){
                     removeClass(this.$refs.items.children[this.index],'current')
                 }

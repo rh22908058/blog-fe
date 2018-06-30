@@ -32,6 +32,7 @@
 <script type="text/ecmascript-6">
     import axios from 'axios'
     import {VueEditor} from 'vue2-editor'
+    import {port} from '../commons/js/port'
     export default{
         data(){
             return {
@@ -66,7 +67,7 @@
             articleCommit(id){
                 //如果是修改，则发送put请求
                 if(id){
-                    axios.put(`http://localhost:3000/api/article/${id}`,this.article).then(res=>{
+                    axios.put(`http://${port}:3000/api/article/${id}`,this.article).then(res=>{
                         if(!res.data.err){
                             this.tempContent=res.data.data.content
                             this.$emit('datachange',res.data.data)
@@ -83,7 +84,7 @@
                     for(let i=0;i<this.selectTags.length;i++){
                         this.article.tags.push(this.selectTags[i])
                     }
-                    axios.post("http://localhost:3000/api/article",this.article).then(res=>{
+                    axios.post(`http://${port}:3000/api/article`,this.article).then(res=>{
                         if(!res.data.err){
                             this.$emit('dataadd',res.data.data)
                             alert('提交成功')
@@ -100,7 +101,7 @@
                 //作为adminArticle的子组件，就不能从url中获取参数id了，要从props中获取
                 if(this.articleId){
                     //按id获取article，用响应数据渲染页面
-                    axios.get(`http://localhost:3000/api/article/${this.articleId}`).then(res=>{
+                    axios.get(`http://${port}:3000/api/article/${this.articleId}`).then(res=>{
                         if(!res.data.err){
                             //还是解构
                             this.article=res.data.data
@@ -115,7 +116,7 @@
                 }         
             },
             _getTag(){
-                axios.get("http://localhost:3000/api/tag").then(res=>{
+                axios.get(`http://${port}:3000/api/tag`).then(res=>{
                     if(!res.data.err){
                         //还是解构
                         this.tags=res.data.data

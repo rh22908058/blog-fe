@@ -26,6 +26,9 @@ import tag from '../components/tag'
 import axios from 'axios'
 import {debounce} from '../commons/js/date'
 import Loading from '../components/load'
+import {port} from '../commons/js/port'
+//var store = require('store')
+import store from 'store'
 
 export default {
   //add
@@ -74,13 +77,13 @@ export default {
     })
     */
     //初始化滚动高度
-    sessionStorage.setItem("scrollTop",0)
-    console.log('maincreated')
+    //localStorage.setItem("scrollTop",0)
+    store.set("scrolltop",0)
     this.changeFilter()
   },
   activated(){
-    console.log('mainactivated')
-    var scrollTop=sessionStorage.getItem("scrollTop")
+    //var scrollTop=localStorage.getItem("scrollTop")
+    var scrollTop=store.get("scrolltop")
     setTimeout(()=>{
       window.scrollTo(0, scrollTop)
     },1000)
@@ -96,7 +99,8 @@ export default {
     },
     scrollToTop(){
       window.scrollTo(0, 0)
-      sessionStorage.setItem("scrollTop",0)
+      //localStorage.setItem("scrollTop",0)
+      store.set("scrolltop",0)
     },
     goHome(){
       this.changeFilter()
@@ -113,13 +117,13 @@ export default {
     */
     //加载更多，给GET请求加入pageSize，offset，filter的参数，其中filter需要将filter对象转换为JSON字符串
     loadMore() {
-      console.log('loadmore')
       if(this.$route.name!='Home'){
         return
       }
+      console.log('canload!!!'+this.canLoadMore)
       //只有当不是路由改变触发的loadMore事件且只有当上一次get请求获取到响应数据时，才发送请求获取下一页数据
       if(!this.isLoadMore&&this.canLoadMore){
-        debounce(this.sendGetReq,1000)()
+        debounce(this.sendGetReq,100)()
         //this.sendGetReq()
         this.isLoadMore=false
       }
@@ -136,15 +140,13 @@ export default {
       else{
         resource=this.resource
       }
-      console.log('resource'+this.resource)
       if(!this.isEnd){
-        axios.get(`http://localhost:3000/api/${resource}?pageSize=${this.pageSize}&offset=${this.articles.length}&filter=${JSON.stringify(this.filter)}`).then(({data:res})=>{
+        axios.get(`http://${port}:3000/api/${resource}?pageSize=${this.pageSize}&offset=${this.articles.length}&filter=${JSON.stringify(this.filter)}`).then(({data:res})=>{
           if(!res.err){
             //用解构语法追加，不可以直接赋值(之前的数据都会丢失)
             this.articles=[...this.articles,...res.data]
             this.canLoadMore=true
             //count<pageSize说明已经到了最后一条记录，隐藏loading
-            console.log(res.pagination.count+' '+res.pagination.pageSize)
             if(res.pagination.count<res.pagination.pageSize){
               this.isEnd=true
             }
@@ -157,17 +159,14 @@ export default {
     //筛选条件改变时，封装filter对象，清空articles，重新发送GET请求获取条件筛选后的数据
     changeFilter(){
       this.isEnd=false
-      console.log(this.$route.hash)
       //new Router创建路由时加入了name属性可以用$route.name取到，path中的参数可以由$route.params取到
       //const {year,month}=this.$route.params  
       //如果是Archive路由，则按时间范围进行筛选，修改data中的filter属性，从而在GET请求中加入filter参数进行筛选
       if(/archive/.test(this.$route.hash)){
-        console.log('articlechange')
         this.resource="article"
-
         const result=this.$route.hash.match(/\d+/g)
         //如果archive请求与上次archive请求url相同，则说明是返回，使用缓存不必重新请求
-        if((+result[0]==this.date.year)&&(+result[1]==this.date.month)){
+        if((+result[0]==this.date.year)&&(+result[1]==this.date.month)&&(this.resource==this.lastResource)){
           return
         }
         //是新的archive请求，更新date属性并发送请求
@@ -183,13 +182,13 @@ export default {
         this.articles=[]
         this.sendGetReq()
         this.isLoadMore=true
+        this.lastResource=this.resource
       }
       else if(/tag/.test(this.$route.hash)){
-        console.log('tagchange')
         this.resource="tag"
         //如果tag请求与上次tag请求url相同，则说明是返回，使用缓存不必重新请求
         const result=this.$route.hash.match(/\d+/g)
-        if(result[0]==this.tagid){
+        if((result[0]==this.tagid)&&(this.resource==this.lastResource)){
           return
         }
         //是tag请求，更新当前的tagid并发送请求
@@ -199,6 +198,7 @@ export default {
         this.articles=[]
         this.sendGetReq()
         this.isLoadMore=true
+        this.lastResource=this.resource
       }
       //如果是Home路由首页，则不加过滤
       else if(this.$route.name==='Home'){
@@ -207,14 +207,13 @@ export default {
         this.articles=[]
         this.sendGetReq()
         this.isLoadMore=true
+        this.lastResource='home'
       }
     }
   },
   watch:{
     /*监听url的改变，$route是vue-router的指令，表示当前url*/
     '$route':function(newVal){
-      console.log('changefilter')
-      console.log(newVal)
       //如果还是Home路由则不发送请求，Home路由hash为空
       if(this.$route.hash){
         this.changeFilter()
@@ -242,6 +241,7 @@ export default {
       width 30px
       height 30px
       font-size 30px
+      background red
     .content-wrapper
       width 75%
       margin 0

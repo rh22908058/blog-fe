@@ -6,6 +6,7 @@
 </template>
 <script type="text/ecmascript-6">
     import axios from 'axios'
+    import {port} from '../commons/js/port'
     export default{
         data(){
             return {
@@ -15,7 +16,7 @@
         },
         created(){
             //发送登出的delete请求
-            axios.delete('http://localhost:3000/api/session')
+            axios.delete(`http://${port}:3000/api/session`)
             //设置5s定时器，跳转到根目录
             this.timer=setInterval(()=>{
                 if(this.remainTime>0){
@@ -40,8 +41,9 @@
 .sign-out
     background #d8e2eb
     position fixed
-    top 300px
+    top 200px
     bottom 0
     left 0
     right 0
+    padding 50px 0 0 30px
 </style>

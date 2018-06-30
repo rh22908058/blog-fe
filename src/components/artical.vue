@@ -23,6 +23,7 @@
 
 import {formatDate} from '../commons/js/date'
 import axios from 'axios'
+import store from 'store'
     export default{
         created(){
         },
@@ -55,8 +56,8 @@ import axios from 'axios'
             }
             */
             selectItem(){
-                console.log(document.documentElement.scrollTop)
-                sessionStorage.setItem("scrollTop",document.documentElement.scrollTop)
+                //localStorage.setItem("scrollTop",document.documentElement.scrollTop)
+                store.set("scrolltop",document.documentElement.scrollTop||document.body.scrollTop)            
             }
         },
         /*添加时间过滤器*/
